@@ -1,0 +1,422 @@
+#include <stdio.h>
+#include <stdlib.h> // Required for system()
+
+int MainMenu();
+int LogIn(int *AccountPin, int *AccountNumber);
+int ChangePin(int *AccountPin);
+int Deposit(float *Balance);
+int Withdraw(float *Balance);
+int Transfer(float *Balance);
+int PayBills(float *Balance);
+void pause() { //function to make user wait before moving on
+    printf("Press enter to continue");
+    getch();
+    system("cls");
+}
+
+int main()
+{
+    int AccountNumber = 12412066; // Change this to your ID number
+    int AccountPin = 123456;
+    float Balance = 1000.00;
+    int nChoice;
+
+    if (LogIn(&AccountPin, &AccountNumber))
+    {
+        do {
+        	system("cls");
+            nChoice = MainMenu();
+            switch (nChoice)
+            {
+                case 0: // Log out
+                    printf("You have successfully logged out.\n");
+                    return 0;
+                    break;
+
+                case 1: // Change PIN
+                	system("cls");
+                    ChangePin(&AccountPin); // change pin function
+                    pause();
+                    system("cls");
+                    LogIn(&AccountPin, &AccountNumber); //makes you log in again
+                    break;
+
+                case 2: // Balance Inquiry
+                	system("cls");
+                    printf("Account Number: %d\n", AccountNumber);
+                    printf("Your current balance is: P%.2f\n", Balance);
+                    pause();
+                    break;
+
+                case 3: // Deposit
+                	system("cls");
+                    Deposit(&Balance);
+                    pause();
+                    break;
+                
+                case 4://Withdraw
+                	system("cls");
+                	Withdraw(&Balance);
+                	pause();
+                	break;
+                	
+                case 5://Transfer Funds
+                	system("cls");
+                	Transfer(&Balance);
+					break;
+
+                case 6: // Pay Bills
+                	system("cls");
+                    PayBills(&Balance);
+                    pause();
+                    break;
+                    
+                case 7:
+                	break;
+
+                default: // Invalid input
+                    system("cls");
+                    printf("Invalid option. Please try again.\n");
+                    break;
+            }
+        } while (nChoice != 0);
+    }
+    return 0;
+}
+
+int MainMenu() {
+    int MenuSelect;
+    printf("----------------------------------\n");
+    printf("[1] - Change Pin\n");
+    printf("[2] - Balance Inquiry\n");
+    printf("[3] - Deposit\n");
+    printf("[4] - Withdraw\n");
+    printf("[5] - Transfer Funds\n");
+    printf("[6] - Pay Bills\n");
+    printf("[7] - View Transactions\n");
+    printf("[0] - Logout\n");
+    printf("----------------------------------\n");
+    printf("Enter Option Number: ");
+    scanf("%d", &MenuSelect);
+    return MenuSelect;
+}
+
+int LogIn(int *AccountPin, int *AccountNumber)
+{
+	int AccountNumberInput;
+	int PINinput;	
+	int attempt_count = 0;
+		
+	while(attempt_count < 3) //keeps doing this until attempt count is less than 3
+	{
+		printf("Enter account number: ");
+		scanf("%d", &AccountNumberInput);
+		
+		printf("Enter PIN: ");
+		scanf("%d", &PINinput);
+		
+		if(AccountNumberInput == *AccountNumber && PINinput == *AccountPin) // if correct, login successful, returns 1
+		{
+			printf("Login successful!\n");
+			pause();
+			return 1;
+		}
+		else { // prints out whichever had the error (could be one or both)
+			
+			if (AccountNumberInput != *AccountNumber)
+			{
+				printf("Sorry, the account number was wrong. Please try again.\n");	
+			}
+			if (PINinput != *AccountPin)
+			{
+				printf("Sorry, the PIN was wrong. Please try again.\n");
+				
+			attempt_count++;
+			printf("You have %d attempts left.\n", 3 - attempt_count);	
+		}
+		}
+		
+		if (attempt_count == 3)
+		{
+			printf("Maximum attempts reached. Logging out...\n");
+			return 0;
+		}
+	}
+
+}
+
+int ChangePin(int *AccountPin) {
+    int CurrentPIN;
+    int NewPIN;
+    int VerifyPin;
+    int attempt_count = 0;
+
+    
+	//check current pin block
+	do
+	{
+		printf("Enter current PIN:\n");
+    	scanf("%d", &CurrentPIN);
+    	if (CurrentPIN != *AccountPin)
+    	{
+    		attempt_count++;
+    		printf("Wrong Pin! Try again.\n");
+    		
+			if (attempt_count < 3)
+			{
+				printf("You have %d attempts left.\n", 3 - attempt_count);
+			}
+				else if (attempt_count == 3)
+			{
+				printf("Maximum attempts reached. Logging out\n");
+				return 0;
+			}
+		}
+		
+	} while (CurrentPIN != *AccountPin);
+	//new pin block
+	do
+	{
+		printf("Enter new PIN (6 digits):\n");
+        scanf("%d", &NewPIN);
+		if (NewPIN < 100000 || NewPIN > 999999) 
+		{
+			attempt_count++;
+            printf("Error: PIN must be exactly 6 digits.\n");
+            if (attempt_count < 3)
+			{
+				printf("You have %d attempts left.\n", 3 - attempt_count);
+			}
+				else if (attempt_count == 3)
+			{
+				printf("Maximum attempts reached. Logging out\n");
+				return 0;
+			}
+        }
+        if (NewPIN == *AccountPin) 
+		{
+			attempt_count++;
+            printf("Error: PIN can not be the same as previous PIN.\n");
+            if (attempt_count < 3)
+			{
+				printf("You have %d attempts left.\n", 3 - attempt_count);
+			}
+				else if (attempt_count == 3)
+			{
+				printf("Maximum attempts reached. Logging out\n");
+				return 0;
+			}
+        }
+	} while (NewPIN < 100000 || NewPIN > 999999 || NewPIN == *AccountPin && attempt_count < 3);
+	//verify pin block
+	do
+	{
+		printf("Re-enter new PIN to confirm:\n");
+        scanf("%d", &VerifyPin);
+		if (NewPIN != VerifyPin) 
+		{
+			attempt_count++;
+            printf("PINs do not match. PIN Change failed.\n");
+            if (attempt_count < 3)
+			{
+				printf("You have %d attempts left.\n", 3 - attempt_count);
+			}
+				else if (attempt_count == 3)
+			{
+				printf("Maximum attempts reached. Logging out\n");
+				return 0;
+			}
+        }
+	} while (NewPIN != VerifyPin);
+	
+    *AccountPin = NewPIN;
+    return 1;
+}
+
+
+int Deposit(float *Balance) {
+    int denomination, numBills, amount;
+    float currentDeposit = 0;
+
+
+        printf("Choose your deposit denomination:\n");
+        printf("[1] - P100\n[2] - P200\n[3] - P500\n[4] - P1000\n[0] - Cancel\n");
+        
+        do
+        {
+        	printf("Denomination: ");
+        	scanf("%d", &denomination);
+
+        	if (denomination == 0) {
+            printf("Deposit transaction canceled.\n");
+            return 0;
+        	}
+
+        	if (denomination < 1 || denomination > 4) {
+            printf("Invalid denomination. Try again.\n");
+        	}
+		} while (denomination < 1 || denomination > 4);
+        
+		do
+		{
+			printf("Enter number of bills (1-10): ");
+        	scanf("%d", &numBills);
+        	
+        	if (numBills < 1 || numBills > 10) {
+            	printf("Invalid number of bills. Try again.\n");
+        	}
+		} while (numBills < 1 || numBills > 10);
+        
+		switch (denomination)
+		{
+			case 1: amount = numBills * 100;
+					break;
+			case 2: amount = numBills * 200;
+					break;
+			case 3: amount = numBills * 500;
+					break;
+			case 4: amount = numBills * 1000;
+					break;
+			default: return 0;
+					break;			
+		}
+        
+        currentDeposit += amount;
+        printf("You deposited: P%.2f\n", currentDeposit);
+
+        *Balance += currentDeposit;
+
+    return 1;
+}
+
+int Withdraw(float *Balance){
+    system("cls");
+    int withdrawal;
+    printf("How much would you like to withdraw? Input '0' to cancel '(Intervals of P100 only)': ");
+    scanf("%d", &withdrawal); 
+
+    do 
+    {
+        if (withdrawal == 0) {
+            printf("Transaction cancelled.\n");
+            return 0;
+        }
+        if (withdrawal < 100 || withdrawal > 900 || withdrawal % 100 != 0) {
+            printf("You can only withdraw in intervals of P100, between P100 and P900.\n");
+            printf("Please try again: ");
+            scanf("%d", &withdrawal);
+        }
+        if (withdrawal > *Balance) {
+            printf("Insufficient balance! Your current balance is: P%.2f\n", *Balance);
+            printf("Please try again: ");
+            scanf("%d", &withdrawal);
+        }
+    } while (withdrawal < 100 || withdrawal > 900 || withdrawal % 100 != 0 || withdrawal > *Balance);
+
+    *Balance -= withdrawal;
+    printf("P%d has been withdrawn.\n", withdrawal);
+    printf("Your new balance is: P%.2f\n", *Balance);
+    return 1;
+}
+
+int PayBills(float *Balance) {
+	int billerChoice;
+    float amountToPay;
+
+    system("cls"); // Clear screen before bill payment input
+    printf("----------------------------------\n");
+    printf("[1] - Biller 1\n");
+    printf("[2] - Biller 2\n");
+    printf("[3] - Biller 3\n");
+    printf("[4] - Biller 4\n");
+    printf("[5] - Biller 5\n");
+    printf("[0] - Cancel\n");
+    printf("----------------------------------\n");
+    printf("Choose biller: ");
+    scanf("%d", &billerChoice);
+
+	do 
+	{
+		if (billerChoice == 0) {
+            printf("Transaction cancelled.\n");
+            return 0;
+        }
+
+        if (billerChoice < 1 || billerChoice > 5) {
+            printf("Invalid biller option. Please try again.\n");
+            continue;
+        }	
+	} while (billerChoice < 1 || billerChoice > 5);
+        
+	do
+	{
+		printf("Enter amount to pay: ");
+        scanf("%f", &amountToPay);
+        
+		if (amountToPay <= 0) {
+            printf("Payment cannot be zero or less!\n");
+            continue;
+        }
+
+        if (amountToPay > *Balance) {
+            printf("Sorry, insufficient balance. Your current balance is: P%.2f\n", *Balance);
+            continue;
+        }
+	} while (amountToPay > *Balance || amountToPay <= 0);
+       
+        *Balance -= amountToPay;
+        printf("P%.2f has been paid to Biller %d.\n", amountToPay, billerChoice);
+        printf("Your new balance is: P%.2f\n", *Balance);
+
+    return 1;
+}
+
+int Transfer(float *Balance){
+    system("cls");
+    int transferNo;
+    float transferAmt;
+
+    printf("Enter Account Number (Eight Digits [10000000 - 99999999]) or 0 to cancel: ");
+    scanf("%d", &transferNo);
+
+    // Validate account number
+    while (transferNo != 0 && (transferNo < 10000000 || transferNo > 99999999)) {
+        printf("Account number must be eight digits and within the prescribed range.\n");
+        printf("Please try again: ");
+        scanf("%d", &transferNo);
+    }
+
+    if (transferNo == 0) {
+        printf("Transaction cancelled. Returning to main menu...\n");
+        return 0;
+    }
+
+    printf("Enter amount to transfer or 0 to cancel: ");
+    scanf("%f", &transferAmt);
+
+    // Validate transfer amount
+    while (transferAmt != 0 && (transferAmt < 1 || transferAmt > 50000 || transferAmt > *Balance)) {
+        if (transferAmt > *Balance) {
+            printf("Insufficient balance! Your current balance is: P%.2f\n", *Balance);
+        } else {
+            printf("Transfer amount must be a positive value between 1 and 50000!\n");
+        }
+        printf("Please try again: ");
+        scanf("%f", &transferAmt);
+    }
+
+    if (transferAmt == 0) {
+        printf("Transaction cancelled. Returning to main menu...\n");
+        return 0;
+    }
+
+    // Execute the transfer
+    *Balance -= transferAmt;
+    printf("P%.2f has been successfully transferred to account %d.\n", transferAmt, transferNo);
+    printf("Your new balance is: P%.2f\n", *Balance);
+
+    pause(); // Allow the user to see the result before clearing the screen
+    return 1;
+}
+
+
