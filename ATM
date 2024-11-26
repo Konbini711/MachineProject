@@ -8,6 +8,13 @@ int Deposit(float *Balance);
 int Withdraw(float *Balance);
 int Transfer(float *Balance);
 int PayBills(float *Balance);
+
+struct Transaction {
+    char type[20];
+    float amount;
+    float runningBalance;
+};
+
 void pause() { //function to make user wait before moving on
     printf("Press enter to continue");
     getch();
@@ -20,6 +27,10 @@ int main()
     int AccountPin = 123456;
     float Balance = 1000.00;
     int nChoice;
+    
+    struct Transaction transactions[5];
+	int transactionIndex = 0;
+	int transactionCount = 0;
 
     if (LogIn(&AccountPin, &AccountNumber))
     {
@@ -72,6 +83,8 @@ int main()
                     break;
                     
                 case 7:
+                	ViewTransactions(transactions, transactionCount, transactionIndex);
+                	pause();
                 	break;
 
                 default: // Invalid input
@@ -234,7 +247,7 @@ int ChangePin(int *AccountPin) {
 }
 
 
-int Deposit(float *Balance) {
+int Deposit(float *Balance, struct Transaction transactions[], int *transactionCount, int *transactionIndex) {
     int denomination, numBills, amount;
     float currentDeposit = 0;
 
@@ -285,11 +298,18 @@ int Deposit(float *Balance) {
         printf("You deposited: P%.2f\n", currentDeposit);
 
         *Balance += currentDeposit;
-
+        
+        strcpy(transactions[*transactionIndex % 5].type, "Deposit");
+    	transactions[*transactionIndex % 5].amount = amount;
+    	transactions[*transactionIndex % 5].runningBalance = *Balance;
+    	(*transactionIndex)++;
+    	if (*transactionCount < 5){
+        	(*transactionCount)++;
+	}
     return 1;
 }
 
-int Withdraw(float *Balance){
+int Withdraw(float *Balance, struct Transaction transactions[], int *transactionCount, int *transactionIndex){
     system("cls");
     int withdrawal;
     printf("How much would you like to withdraw? Input '0' to cancel '(Intervals of P100 only)': ");
@@ -316,10 +336,19 @@ int Withdraw(float *Balance){
     *Balance -= withdrawal;
     printf("P%d has been withdrawn.\n", withdrawal);
     printf("Your new balance is: P%.2f\n", *Balance);
+    
+  	strcpy(transactions[*transactionIndex % 5].type, "Withdraw");
+	transactions[*transactionIndex % 5].amount = amount;
+   	transactions[*transactionIndex % 5].runningBalance = *Balance;
+   	(*transactionIndex)++;
+    if (*transactionCount < 5){
+    	(*transactionCount)++;
+	}
+    
     return 1;
 }
 
-int PayBills(float *Balance) {
+int PayBills(float *Balance, struct Transaction transactions[], int *transactionCount, int *transactionIndex) {
 	int billerChoice;
     float amountToPay;
 
@@ -367,11 +396,18 @@ int PayBills(float *Balance) {
         *Balance -= amountToPay;
         printf("P%.2f has been paid to Biller %d.\n", amountToPay, billerChoice);
         printf("Your new balance is: P%.2f\n", *Balance);
+        
+        strcpy(transactions[*transactionIndex % 5].type, "Pay Bills");
+    	transactions[*transactionIndex % 5].amount = amount;
+    	transactions[*transactionIndex % 5].runningBalance = *Balance;
+    	(*transactionIndex)++;
+    	if (*transactionCount < 5){
+        	(*transactionCount)++;
 
     return 1;
 }
 
-int Transfer(float *Balance){
+int Transfer(float *Balance, struct Transaction transactions[], int *transactionCount, int *transactionIndex){
     system("cls");
     int transferNo;
     float transferAmt;
@@ -410,13 +446,37 @@ int Transfer(float *Balance){
         return 0;
     }
 
-    // Execute the transfer
+
     *Balance -= transferAmt;
     printf("P%.2f has been successfully transferred to account %d.\n", transferAmt, transferNo);
     printf("Your new balance is: P%.2f\n", *Balance);
+    
+    strcpy(transactions[*transactionIndex % 5].type, "Transfer");
+    transactions[*transactionIndex % 5].amount = amount;
+    transactions[*transactionIndex % 5].runningBalance = *Balance;
+    (*transactionIndex)++;
+    if (*transactionCount < 5){
+    	(*transactionCount)++;
 
-    pause(); // Allow the user to see the result before clearing the screen
+    pause();
     return 1;
+}
+
+void ViewTransactions(struct Transaction transactions[], int transactionCount, int transactionIndex) {
+    if (transactionCount == 0) {
+        printf("No transactions to display.\n");
+        return;
+    }
+
+    int startIndex = (transactionIndex - transactionCount) % 5;
+    if (startIndex < 0)
+        startIndex += 5;
+
+    printf("Transaction #\tTransaction Type\t\tAmount\t\tRunning Balance\n");
+    for (int i = 0; i < transactionCount && i < 5; i++) {
+        int index = (startIndex + i) % 5;
+        printf("%d\t\t%s\t\t%.2f\t\t%.2f\n", i + 1, transactions[index].type, transactions[index].amount, transactions[index].runningBalance);
+    }
 }
 
 
