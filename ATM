@@ -16,7 +16,7 @@ void pause() { //function to make user wait before moving on
 
 int main()
 {
-    int AccountNumber = 12412066; // Change this to your ID number
+    int AccountNumber = 10000000;
     int AccountPin = 123456;
     float Balance = 1000.00;
     int nChoice;
