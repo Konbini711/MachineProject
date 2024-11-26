@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h> // Required for system()
+#include <conio.h> // for getch()
 
 int MainMenu();
 int LogIn(int *AccountPin, int *AccountNumber);
@@ -8,6 +9,7 @@ int Deposit(float *Balance);
 int Withdraw(float *Balance);
 int Transfer(float *Balance);
 int PayBills(float *Balance);
+void ViewTransactions();
 
 struct Transaction {
     char type[20];
@@ -61,30 +63,30 @@ int main()
 
                 case 3: // Deposit
                 	system("cls");
-                    Deposit(&Balance);
+					Deposit(&Balance, transactions, &transactionCount, &transactionIndex);
                     pause();
                     break;
                 
                 case 4://Withdraw
                 	system("cls");
-                	Withdraw(&Balance);
+					Withdraw(&Balance, transactions, &transactionCount, &transactionIndex);
                 	pause();
                 	break;
                 	
                 case 5://Transfer Funds
                 	system("cls");
-                	Transfer(&Balance);
+					Transfer(&Balance, transactions, &transactionCount, &transactionIndex);
 					break;
 
                 case 6: // Pay Bills
                 	system("cls");
-                    PayBills(&Balance);
+					PayBills(&Balance, transactions, &transactionCount, &transactionIndex);
                     pause();
                     break;
                     
                 case 7:
                 	ViewTransactions(transactions, transactionCount, transactionIndex);
-                	pause();
+                	pause();					                	
                 	break;
 
                 default: // Invalid input
@@ -338,13 +340,12 @@ int Withdraw(float *Balance, struct Transaction transactions[], int *transaction
     printf("Your new balance is: P%.2f\n", *Balance);
     
   	strcpy(transactions[*transactionIndex % 5].type, "Withdraw");
-	transactions[*transactionIndex % 5].amount = amount;
+	transactions[*transactionIndex % 5].amount = withdrawal;
    	transactions[*transactionIndex % 5].runningBalance = *Balance;
    	(*transactionIndex)++;
     if (*transactionCount < 5){
     	(*transactionCount)++;
 	}
-    
     return 1;
 }
 
@@ -398,7 +399,7 @@ int PayBills(float *Balance, struct Transaction transactions[], int *transaction
         printf("Your new balance is: P%.2f\n", *Balance);
         
         strcpy(transactions[*transactionIndex % 5].type, "Pay Bills");
-    	transactions[*transactionIndex % 5].amount = amount;
+    	transactions[*transactionIndex % 5].amount = amountToPay;
     	transactions[*transactionIndex % 5].runningBalance = *Balance;
     	(*transactionIndex)++;
     	if (*transactionCount < 5){
@@ -452,7 +453,7 @@ int Transfer(float *Balance, struct Transaction transactions[], int *transaction
     printf("Your new balance is: P%.2f\n", *Balance);
     
     strcpy(transactions[*transactionIndex % 5].type, "Transfer");
-    transactions[*transactionIndex % 5].amount = amount;
+    transactions[*transactionIndex % 5].amount = transferAmt;
     transactions[*transactionIndex % 5].runningBalance = *Balance;
     (*transactionIndex)++;
     if (*transactionCount < 5){
